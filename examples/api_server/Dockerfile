@@ -13,4 +13,7 @@ ENV FLASK_APP=api_server.py
 ENV FLASK_RUN_EXTRA_FILES=/usr/src/api/*
 ENV FLASK_ENV=development
 
-CMD ["flask", "run", "--host=0.0.0.0", "--reload"]
+CMD ["python", "api_server.py"]
+
+
+#CMD ["flask", "run", "--host=0.0.0.0", "--reload"]

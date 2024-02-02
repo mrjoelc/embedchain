@@ -1,2 +1,3 @@
 flask==2.3.2
-embedchain[dataloaders]==0.0.78
+embedchain==0.1.72
+docx2txt
