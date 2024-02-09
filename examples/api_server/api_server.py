@@ -261,9 +261,13 @@ def query():
     #aggiunta per filtrare su documento
     document = data.get("document", None)
     document_hash=None
+    #Questo controllo va rivisto, perché bisogna avere un dict delle source per ogni bot, non uno complessivo
     if document:
         document = get_key_from_value(hash_source_dict, document)
-        document_hash = {"hash":f"{document}"}
+        if not document is None:
+            document_hash = {"hash":f"{document}"}
+        else:
+            return jsonify({"error": "Invalid request. The provided document doesn't exist in bot."}), 400
     if question:
         try:
             response = chat_bot.query(input_query=question, config=llm_config, dry_run=ast.literal_eval(dry_run), where=document_hash)
@@ -277,14 +281,15 @@ def query():
                 sep = "<"
             if sep != "":
                 context = response.rsplit(sep,1)[-1][:-1]
-                source_hash = chat_bot.db.collection.query(
-                    query_texts=[
-                        context,
-                    ],
-                    n_results=1,
-                    where=document_hash, #aggiunta per filtrare su documento
-                ).get('metadatas',{})[0][0].get("hash",{})
-                source_url = hash_source_dict.get(source_hash, {})
+                if not "No information available" in context: 
+                    source_hash = chat_bot.db.collection.query(
+                        query_texts=[
+                            context,
+                        ],
+                        n_results=1,
+                        where=document_hash, #aggiunta per filtrare su documento
+                    ).get('metadatas',{})[0][0].get("hash",{})
+                    source_url = hash_source_dict.get(source_hash, {})
                 response = response.rsplit(sep,1)[0]
 
             return jsonify({"data": response, "source": source_url, "context": context}), 200
